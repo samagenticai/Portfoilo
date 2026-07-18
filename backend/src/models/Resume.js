@@ -6,6 +6,8 @@ const resumeSchema = new mongoose.Schema(
     filePath: { type: String, default: '' },
     url: { type: String, default: '' },
     cloudinaryPublicId: { type: String, default: '' },
+    cloudinaryResourceType: { type: String, default: 'raw' },
+    pdfData: { type: Buffer, select: false, default: null },
     fileName: { type: String, default: '' },
     originalName: { type: String, default: '' },
     fileSize: { type: Number, default: 0 },

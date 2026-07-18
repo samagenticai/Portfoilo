@@ -39,6 +39,15 @@ export function assertCloudinaryConfigured() {
   }
 }
 
+function authOptions() {
+  assertCloudinaryConfigured()
+  return {
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME.trim(),
+    api_key: process.env.CLOUDINARY_API_KEY.trim(),
+    api_secret: process.env.CLOUDINARY_API_SECRET.trim(),
+  }
+}
+
 export function extractPublicIdFromUrl(url) {
   if (!url || !url.includes('cloudinary.com')) return null
 
@@ -65,19 +74,15 @@ function isPdfBuffer(buffer) {
   )
 }
 
-/** Signed Admin API URL that returns the raw PDF bytes (bypasses public CDN PDF blocks). */
-export function buildPrivateRawPdfUrl(publicId, format = null, options = {}) {
-  assertCloudinaryConfigured()
-  if (!publicId) throw new Error('Cloudinary public ID is required')
-
+function buildPrivateDownloadUrl(publicId, format, resourceType) {
   return cloudinary.utils.private_download_url(publicId, format, {
-    resource_type: 'raw',
-    ...options,
+    resource_type: resourceType,
+    ...authOptions(),
   })
 }
 
-async function downloadWithPrivateUrl(publicId, format) {
-  const downloadUrl = buildPrivateRawPdfUrl(publicId, format)
+async function fetchPdfFromPrivateDownload(publicId, format, resourceType) {
+  const downloadUrl = buildPrivateDownloadUrl(publicId, format, resourceType)
   const response = await fetch(downloadUrl, { redirect: 'manual' })
 
   if (response.status >= 300 && response.status < 400) {
@@ -95,18 +100,27 @@ async function downloadWithPrivateUrl(publicId, format) {
   return buffer
 }
 
-async function resolveRawPdfResource(storedUrl, knownPublicId = '') {
+async function resolvePdfResource({ storedUrl = '', publicId = '', resourceType = '' }) {
   assertCloudinaryConfigured()
 
   const baseId = extractPublicIdFromUrl(storedUrl)
-  const candidates = uniqueValues([knownPublicId, baseId, baseId ? `${baseId}.pdf` : ''])
+  const candidates = uniqueValues([publicId, baseId, baseId ? `${baseId}.pdf` : ''])
+  const resourceTypes = uniqueValues([resourceType, 'raw', 'image'])
 
-  for (const candidate of candidates) {
-    try {
-      const meta = await cloudinary.api.resource(candidate, { resource_type: 'raw' })
-      if (meta?.public_id) return meta
-    } catch {
-      // try next candidate
+  for (const type of resourceTypes) {
+    for (const candidate of candidates) {
+      try {
+        const meta = await cloudinary.api.resource(candidate, { resource_type: type })
+        if (meta?.public_id) {
+          return {
+            publicId: meta.public_id,
+            format: meta.format || 'pdf',
+            resourceType: meta.resource_type || type,
+          }
+        }
+      } catch {
+        // try next candidate
+      }
     }
   }
 
@@ -117,22 +131,38 @@ async function resolveRawPdfResource(storedUrl, knownPublicId = '') {
     max_results: 10,
   })
 
-  const resources = list?.resources || []
-  if (resources.length === 0) {
-    throw new Error('Cloudinary raw PDF resource not found')
+  const latest = (list?.resources || []).sort(
+    (a, b) => new Date(b.created_at) - new Date(a.created_at),
+  )[0]
+
+  if (!latest?.public_id) {
+    throw new Error('Cloudinary PDF resource not found')
   }
 
-  return resources.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0]
+  return {
+    publicId: latest.public_id,
+    format: latest.format || 'pdf',
+    resourceType: latest.resource_type || 'raw',
+  }
 }
 
-export async function fetchRawPdfBufferFromCloudinary(storedUrl, knownPublicId = '') {
-  const meta = await resolveRawPdfResource(storedUrl, knownPublicId)
-  const formats = uniqueValues([meta.format, 'pdf', null])
+export async function downloadPdfFromCloudinary({
+  storedUrl = '',
+  publicId = '',
+  resourceType = '',
+  format = 'pdf',
+} = {}) {
+  const resolved = await resolvePdfResource({ storedUrl, publicId, resourceType })
+  const formats = uniqueValues([format, resolved.format, 'pdf', null])
 
   let lastError
-  for (const format of formats) {
+  for (const candidateFormat of formats) {
     try {
-      return await downloadWithPrivateUrl(meta.public_id, format)
+      return await fetchPdfFromPrivateDownload(
+        resolved.publicId,
+        candidateFormat,
+        resolved.resourceType,
+      )
     } catch (err) {
       lastError = err
     }

@@ -1,4 +1,4 @@
-import { fetchRawPdfBufferFromCloudinary } from '../config/cloudinary.js'
+import { downloadPdfFromCloudinary } from '../config/cloudinary.js'
 import { toPublicResume } from './cmsMapper.js'
 
 function sanitizeDownloadFileName(name) {
@@ -7,11 +7,31 @@ function sanitizeDownloadFileName(name) {
   return withExt.replace(/[^\w.\- ()[\]]+/g, '_').slice(0, 120) || 'resume.pdf'
 }
 
+function isPdfBuffer(buffer) {
+  return (
+    Buffer.isBuffer(buffer) &&
+    buffer.length >= 4 &&
+    buffer.subarray(0, 4).toString('ascii') === '%PDF'
+  )
+}
+
 export function buildContentDisposition(fileName, { inline = false } = {}) {
   const safe = sanitizeDownloadFileName(fileName)
   const encoded = encodeURIComponent(safe)
   const disposition = inline ? 'inline' : 'attachment'
   return `${disposition}; filename="${safe}"; filename*=UTF-8''${encoded}`
+}
+
+async function loadResumePdfBuffer(resumeDoc, publicResume) {
+  if (isPdfBuffer(resumeDoc?.pdfData)) {
+    return resumeDoc.pdfData
+  }
+
+  return downloadPdfFromCloudinary({
+    storedUrl: publicResume.url,
+    publicId: resumeDoc?.cloudinaryPublicId || '',
+    resourceType: resumeDoc?.cloudinaryResourceType || '',
+  })
 }
 
 export async function streamResumePdf(resumeDoc, res, { inline = false } = {}) {
@@ -22,10 +42,7 @@ export async function streamResumePdf(resumeDoc, res, { inline = false } = {}) {
   }
 
   try {
-    const buffer = await fetchRawPdfBufferFromCloudinary(
-      publicResume.url,
-      resumeDoc?.cloudinaryPublicId || '',
-    )
+    const buffer = await loadResumePdfBuffer(resumeDoc, publicResume)
 
     res.setHeader('Content-Type', 'application/pdf')
     res.setHeader('Content-Disposition', buildContentDisposition(publicResume.fileName, { inline }))

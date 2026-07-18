@@ -55,7 +55,7 @@ router.get('/resume', async (_req, res) => {
 
 router.get('/resume/download', async (req, res) => {
   try {
-    const resume = await Resume.findOne({ key: 'portfolio' }).lean()
+    const resume = await Resume.findOne({ key: 'portfolio' }).select('+pdfData')
     const inline = req.query.inline === '1'
     await streamResumePdf(resume, res, { inline })
   } catch (err) {
