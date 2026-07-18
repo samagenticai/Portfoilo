@@ -5,6 +5,7 @@ const resumeSchema = new mongoose.Schema(
     key: { type: String, default: 'portfolio', unique: true },
     filePath: { type: String, default: '' },
     url: { type: String, default: '' },
+    cloudinaryPublicId: { type: String, default: '' },
     fileName: { type: String, default: '' },
     originalName: { type: String, default: '' },
     fileSize: { type: Number, default: 0 },

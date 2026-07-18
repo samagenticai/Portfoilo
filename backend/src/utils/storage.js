@@ -40,7 +40,7 @@ async function verifyUploadedPdfMatchesOriginal(uploadResult, originalBuffer) {
   const secureUrl = uploadResult?.secure_url
   if (!secureUrl) throw new Error('Cloudinary upload did not return a secure URL')
 
-  const downloaded = await fetchRawPdfBufferFromCloudinary(secureUrl)
+  const downloaded = await fetchRawPdfBufferFromCloudinary(secureUrl, publicId)
   if (sha256(downloaded) !== sha256(originalBuffer)) {
     throw new Error('PDF upload verification failed: stored file does not match the original upload')
   }
@@ -87,7 +87,7 @@ export async function uploadPdfToCloudinary(file, folder = 'resume') {
 
   await verifyUploadedPdfMatchesOriginal(result, buffer)
 
-  return secureUrl
+  return { secureUrl, publicId: result.public_id }
 }
 
 export async function deleteStoredFile(urlOrPath) {

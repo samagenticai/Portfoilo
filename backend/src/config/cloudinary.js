@@ -53,7 +53,19 @@ export function extractPublicIdFromUrl(url) {
   }
 }
 
-/** Signed URL that retrieves the exact raw PDF bytes (works even when public PDF delivery is restricted). */
+function uniqueValues(values) {
+  return [...new Set(values.filter(Boolean))]
+}
+
+function isPdfBuffer(buffer) {
+  return (
+    Buffer.isBuffer(buffer) &&
+    buffer.length >= 4 &&
+    buffer.subarray(0, 4).toString('ascii') === '%PDF'
+  )
+}
+
+/** Signed Admin API URL that returns the raw PDF bytes (bypasses public CDN PDF blocks). */
 export function buildPrivateRawPdfUrl(publicId, format = null, options = {}) {
   assertCloudinaryConfigured()
   if (!publicId) throw new Error('Cloudinary public ID is required')
@@ -64,23 +76,32 @@ export function buildPrivateRawPdfUrl(publicId, format = null, options = {}) {
   })
 }
 
-export function buildPrivateRawPdfUrlFromStoredUrl(storedUrl, options = {}) {
-  const publicId = extractPublicIdFromUrl(storedUrl)
-  if (!publicId) return storedUrl
-  return buildPrivateRawPdfUrl(publicId, 'pdf', options)
+async function downloadWithPrivateUrl(publicId, format) {
+  const downloadUrl = buildPrivateRawPdfUrl(publicId, format)
+  const response = await fetch(downloadUrl, { redirect: 'manual' })
+
+  if (response.status >= 300 && response.status < 400) {
+    throw new Error(`Cloudinary download redirected (HTTP ${response.status})`)
+  }
+  if (!response.ok) {
+    throw new Error(`Cloudinary download failed with HTTP ${response.status}`)
+  }
+
+  const buffer = Buffer.from(await response.arrayBuffer())
+  if (!isPdfBuffer(buffer)) {
+    throw new Error('Cloudinary download did not return a valid PDF')
+  }
+
+  return buffer
 }
 
-async function resolveRawPdfResource(storedUrl) {
+async function resolveRawPdfResource(storedUrl, knownPublicId = '') {
   assertCloudinaryConfigured()
 
   const baseId = extractPublicIdFromUrl(storedUrl)
-  const candidates = []
-  if (baseId) candidates.push(baseId)
-  if (baseId && storedUrl.split('/').pop()?.endsWith('.pdf')) {
-    candidates.push(`${baseId}.pdf`)
-  }
+  const candidates = uniqueValues([knownPublicId, baseId, baseId ? `${baseId}.pdf` : ''])
 
-  for (const candidate of [...new Set(candidates)]) {
+  for (const candidate of candidates) {
     try {
       const meta = await cloudinary.api.resource(candidate, { resource_type: 'raw' })
       if (meta?.public_id) return meta
@@ -89,25 +110,35 @@ async function resolveRawPdfResource(storedUrl) {
     }
   }
 
-  throw new Error('Cloudinary raw PDF resource not found')
+  const list = await cloudinary.api.resources({
+    resource_type: 'raw',
+    type: 'upload',
+    prefix: cloudinaryFolder('resume'),
+    max_results: 10,
+  })
+
+  const resources = list?.resources || []
+  if (resources.length === 0) {
+    throw new Error('Cloudinary raw PDF resource not found')
+  }
+
+  return resources.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0]
 }
 
-export async function fetchRawPdfBufferFromCloudinary(storedUrl) {
-  const meta = await resolveRawPdfResource(storedUrl)
-  const format = meta.format || null
-  const downloadUrl = buildPrivateRawPdfUrl(meta.public_id, format)
+export async function fetchRawPdfBufferFromCloudinary(storedUrl, knownPublicId = '') {
+  const meta = await resolveRawPdfResource(storedUrl, knownPublicId)
+  const formats = uniqueValues([meta.format, 'pdf', null])
 
-  const response = await fetch(downloadUrl, { redirect: 'follow' })
-  if (!response.ok) {
-    throw new Error(`Cloudinary download failed with HTTP ${response.status}`)
+  let lastError
+  for (const format of formats) {
+    try {
+      return await downloadWithPrivateUrl(meta.public_id, format)
+    } catch (err) {
+      lastError = err
+    }
   }
 
-  const buffer = Buffer.from(await response.arrayBuffer())
-  if (buffer.length < 4 || buffer.subarray(0, 4).toString('ascii') !== '%PDF') {
-    throw new Error('Cloudinary download did not return a valid PDF')
-  }
-
-  return buffer
+  throw lastError || new Error('Unable to download PDF from Cloudinary')
 }
 
 export async function deleteCloudinaryAsset(url, resourceType = 'image') {

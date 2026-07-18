@@ -22,7 +22,10 @@ export async function streamResumePdf(resumeDoc, res, { inline = false } = {}) {
   }
 
   try {
-    const buffer = await fetchRawPdfBufferFromCloudinary(publicResume.url)
+    const buffer = await fetchRawPdfBufferFromCloudinary(
+      publicResume.url,
+      resumeDoc?.cloudinaryPublicId || '',
+    )
 
     res.setHeader('Content-Type', 'application/pdf')
     res.setHeader('Content-Disposition', buildContentDisposition(publicResume.fileName, { inline }))

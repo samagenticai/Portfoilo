@@ -54,8 +54,9 @@ router.post('/upload', resumeUpload.single('file'), async (req, res) => {
     const resume = await getOrCreateResume()
     await deleteStoredFile(resume.url || resume.filePath)
 
-    const storedUrl = await uploadPdfToCloudinary(req.file, 'resume')
-    resume.url = storedUrl
+    const { secureUrl, publicId } = await uploadPdfToCloudinary(req.file, 'resume')
+    resume.url = secureUrl
+    resume.cloudinaryPublicId = publicId
     resume.filePath = ''
     resume.fileName = req.file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_') || 'resume.pdf'
     resume.originalName = req.file.originalname
@@ -81,6 +82,7 @@ router.delete('/', async (_req, res) => {
 
     await deleteStoredFile(resume.url || resume.filePath)
     resume.url = ''
+    resume.cloudinaryPublicId = ''
     resume.filePath = ''
     resume.fileName = ''
     resume.originalName = ''
