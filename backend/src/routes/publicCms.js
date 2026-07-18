@@ -10,6 +10,7 @@ import {
   toPublicResume,
   toPublicSkill,
 } from '../utils/cmsMapper.js'
+import { streamResumePdf } from '../utils/resumeDownload.js'
 
 const router = Router()
 
@@ -49,6 +50,18 @@ router.get('/resume', async (_req, res) => {
   } catch (err) {
     console.error(err)
     res.status(500).json({ message: 'Failed to load resume' })
+  }
+})
+
+router.get('/resume/download', async (_req, res) => {
+  try {
+    const resume = await Resume.findOne({ key: 'portfolio' }).lean()
+    await streamResumePdf(resume, res)
+  } catch (err) {
+    console.error(err)
+    if (!res.headersSent) {
+      res.status(500).json({ message: 'Failed to download resume' })
+    }
   }
 })
 

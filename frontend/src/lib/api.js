@@ -72,11 +72,16 @@ export function resolveAssetUrl(path) {
   return ''
 }
 
-/** Resume PDF must be a direct Cloudinary (or other HTTPS) raw URL — never a local /uploads path. */
+/** Cloudinary preview URL for admin iframe — never a local /uploads path. */
 export function resolveResumeUrl(path) {
   return resolveAssetUrl(path)
 }
 
 export function isPublicAssetUrl(path) {
   return Boolean(resolveAssetUrl(path))
+}
+
+/** Same-origin proxy that streams the PDF with correct Content-Type and filename. */
+export function getResumeDownloadUrl() {
+  return buildUrl('/api/resume/download')
 }

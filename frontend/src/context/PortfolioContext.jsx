@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { buildUrl, resolveResumeUrl, isPublicAssetUrl } from '../lib/api'
+import { buildUrl, getResumeDownloadUrl, isPublicAssetUrl } from '../lib/api'
 
 const PortfolioContext = createContext(null)
 
@@ -58,7 +58,8 @@ export function PortfolioProvider({ children }) {
       loading,
       error,
       reload,
-      resumeUrl: resolveResumeUrl(resume?.url),
+      resumeUrl: getResumeDownloadUrl(),
+      resumePreviewUrl: isPublicAssetUrl(resume?.url) ? resume.url : '',
       resumeFileName: resume?.fileName || 'resume.pdf',
       hasResume: isPublicAssetUrl(resume?.url),
       mailtoHref: profile?.email ? `mailto:${profile.email}` : '',

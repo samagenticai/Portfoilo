@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { api } from '../../lib/api'
+import { api, getResumeDownloadUrl } from '../../lib/api'
 import { cn } from '../../lib/cn'
 import { formatFileSize, validateResumePdf } from '../../lib/resumeValidation'
 import { uploadResumePdf } from '../../hooks/useAdminCms'
@@ -87,7 +87,7 @@ export default function ResumeManage() {
   }
 
   const previewUrl = hasResume ? resume.url : ''
-  const downloadUrl = previewUrl
+  const downloadUrl = hasResume ? getResumeDownloadUrl() : ''
 
   const formatDate = (value) => {
     if (!value) return '—'
@@ -160,8 +160,7 @@ export default function ResumeManage() {
                   </a>
                   <a
                     href={downloadUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    download={resume.fileName || 'resume.pdf'}
                     className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-text shadow-lg shadow-primary/20 transition hover:bg-primary/90"
                   >
                     <AppIcon name="download" size={15} className="!text-inherit" />

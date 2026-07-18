@@ -37,11 +37,20 @@ export async function uploadPdfToCloudinary(file, folder = 'resume') {
         folder: folderPath,
         resource_type: 'raw',
         type: 'upload',
+        format: 'pdf',
         public_id: `${Date.now()}-${Math.round(Math.random() * 1e6)}-${baseName}`,
       },
       (error, result) => {
-        if (error) reject(error)
-        else resolve(result.secure_url)
+        if (error) {
+          reject(error)
+          return
+        }
+        const secureUrl = result?.secure_url
+        if (!secureUrl || !secureUrl.includes('/raw/upload/')) {
+          reject(new Error('Cloudinary did not return a valid raw PDF URL'))
+          return
+        }
+        resolve(secureUrl)
       },
     )
     stream.end(buffer)
