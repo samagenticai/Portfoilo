@@ -66,6 +66,7 @@ export async function api(path, options = {}) {
 
 export function resolveAssetUrl(path) {
   if (!path) return ''
+  // Cloudinary and other absolute URLs are stored as-is in MongoDB
   if (/^https?:\/\//i.test(path)) return path
   return buildUrl(path)
 }

@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { Profile } from '../models/Profile.js'
 import { requireAuth } from '../middleware/auth.js'
 import { profileImageUpload } from '../middleware/fileUpload.js'
-import { saveUploadedFile } from '../utils/storage.js'
+import { getCloudinarySecureUrl } from '../utils/storage.js'
 import { toPublicProfile } from '../utils/cmsMapper.js'
 
 const router = Router()
@@ -64,7 +64,8 @@ router.put('/', async (req, res) => {
 router.post('/upload-image', profileImageUpload.single('file'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ message: 'No file uploaded' })
-    const url = await saveUploadedFile(req.file, 'profile')
+    const url = getCloudinarySecureUrl(req.file)
+    if (!url) return res.status(500).json({ message: 'Cloudinary upload failed' })
     res.json({ url })
   } catch (err) {
     console.error(err)

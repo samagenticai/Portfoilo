@@ -17,11 +17,11 @@ Deploy as **one Vercel project** (recommended): frontend static files + `/api` s
 - [ ] Build command: `npm run build --prefix frontend` (auto from `vercel.json`)
 - [ ] Output directory: `frontend/dist` (auto from `vercel.json`)
 
-## 3. Vercel Blob (file uploads)
+## 3. Cloudinary (file uploads)
 
-- [ ] Vercel Dashboard → **Storage** → **Create Blob store**
-- [ ] Connect store to the project
-- [ ] Copy `BLOB_READ_WRITE_TOKEN` into environment variables
+- [ ] Create a free account at [Cloudinary](https://cloudinary.com)
+- [ ] Copy **Cloud name**, **API Key**, and **API Secret** from the dashboard
+- [ ] Add to Vercel environment variables (see below)
 
 ## 4. Environment Variables (Vercel Dashboard)
 
@@ -34,7 +34,9 @@ Deploy as **one Vercel project** (recommended): frontend static files + `/api` s
 | `ADMIN_EMAIL` | Yes | Admin login email (seeded once) |
 | `ADMIN_PASSWORD` | Yes | Strong password (seeded once) |
 | `ADMIN_NAME` | No | Display name |
-| `BLOB_READ_WRITE_TOKEN` | Yes | From Vercel Blob store |
+| `CLOUDINARY_CLOUD_NAME` | Yes | Cloudinary cloud name |
+| `CLOUDINARY_API_KEY` | Yes | Cloudinary API key |
+| `CLOUDINARY_API_SECRET` | Yes | Cloudinary API secret |
 | `SMTP_HOST` | For email | Contact form notifications |
 | `SMTP_PORT` | For email | Usually `587` |
 | `SMTP_SECURE` | For email | `false` for STARTTLS |

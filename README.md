@@ -27,7 +27,7 @@ A production-ready **MERN Stack portfolio** with a full **content management sys
 - Express 5 REST API with JWT authentication
 - Helmet, rate limiting, input sanitization, CORS
 - MongoDB Atlas with connection pooling and retry logic
-- File uploads: local storage (dev) or **Vercel Blob** (production)
+- File uploads: **Cloudinary** (images + resume PDFs)
 - SMTP email notifications for contact submissions
 
 ---
@@ -39,7 +39,7 @@ A production-ready **MERN Stack portfolio** with a full **content management sys
 | **Frontend** | React 19, Vite 8, React Router 7, Tailwind CSS v4, GSAP, Framer Motion |
 | **Backend** | Node.js, Express 5, Mongoose, JWT, Multer, Nodemailer |
 | **Database** | MongoDB Atlas |
-| **Storage** | Vercel Blob (production), local `/uploads` (development) |
+| **Storage** | Cloudinary (images + resume PDFs) |
 | **Deployment** | Vercel (monorepo — static frontend + serverless API) |
 
 ---
@@ -131,7 +131,9 @@ npm run build --prefix frontend
 | `ADMIN_EMAIL` | Yes | Admin login email (seeded once) |
 | `ADMIN_PASSWORD` | Yes | Admin password (seeded once) |
 | `ADMIN_NAME` | No | Admin display name |
-| `BLOB_READ_WRITE_TOKEN` | Vercel | Required for uploads on Vercel |
+| `CLOUDINARY_CLOUD_NAME` | Yes | Cloudinary cloud name |
+| `CLOUDINARY_API_KEY` | Yes | Cloudinary API key |
+| `CLOUDINARY_API_SECRET` | Yes | Cloudinary API secret |
 | `SMTP_*` | Optional | Contact form email delivery |
 | `CONTACT_NOTIFY_EMAIL` | Optional | Inbox for contact notifications |
 
@@ -152,13 +154,13 @@ See [`frontend/.env.example`](frontend/.env.example).
 
 ## Deployment Guide
 
-This project is designed as a **single Vercel project**: static frontend + `/api` serverless Express + MongoDB Atlas + Vercel Blob.
+This project is designed as a **single Vercel project**: static frontend + `/api` serverless Express + MongoDB Atlas + Cloudinary.
 
 ### Quick steps
 
 1. Push this repository to GitHub (public repo: `ahmad-stack-portfolio-cms`).
 2. Import the repo in [Vercel](https://vercel.com) (root directory = repository root).
-3. Create a **Vercel Blob** store and add `BLOB_READ_WRITE_TOKEN`.
+3. Add **Cloudinary** credentials (`CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`).
 4. Add all environment variables from the tables above.
 5. Deploy — `vercel.json` handles build, rewrites, and API routing.
 

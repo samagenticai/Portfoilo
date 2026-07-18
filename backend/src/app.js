@@ -2,13 +2,11 @@ import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
-import path from 'path'
-import { fileURLToPath } from 'url'
 import { connectDB, getDbStatus, isDbConnected } from './config/db.js'
+import { isCloudinaryConfigured } from './config/cloudinary.js'
 import { validateEnv } from './config/env.js'
 import { createCorsOptions } from './config/cors.js'
 import { applySecurityMiddleware, registerProcessHandlers } from './middleware/security.js'
-import { useRemoteStorage } from './utils/storage.js'
 import authRoutes from './routes/auth.js'
 import publicProjectRoutes from './routes/publicProjects.js'
 import adminProjectRoutes from './routes/adminProjects.js'
@@ -18,9 +16,6 @@ import adminSkillsRoutes from './routes/adminSkills.js'
 import adminProfileRoutes from './routes/adminProfile.js'
 import adminResumeRoutes from './routes/adminResume.js'
 import adminMessagesRoutes from './routes/adminMessages.js'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
 
 validateEnv()
 registerProcessHandlers()
@@ -34,10 +29,6 @@ app.use(express.json({ limit: '2mb' }))
 app.use(express.urlencoded({ extended: true, limit: '2mb' }))
 app.use(cookieParser())
 applySecurityMiddleware(app)
-
-if (!useRemoteStorage() && !process.env.VERCEL) {
-  app.use('/uploads', express.static(path.join(__dirname, '../uploads')))
-}
 
 app.use(async (req, res, next) => {
   const connected = await connectDB()
@@ -56,7 +47,7 @@ app.get('/api/health', (_req, res) => {
     status: database.connected ? 'ok' : 'degraded',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
-    storage: useRemoteStorage() ? 'blob' : 'local',
+    storage: isCloudinaryConfigured() ? 'cloudinary' : 'cloudinary-unconfigured',
     database,
   })
 })

@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { Resume } from '../models/Resume.js'
 import { requireAuth } from '../middleware/auth.js'
 import { resumeUpload } from '../middleware/fileUpload.js'
-import { deleteStoredFile, saveUploadedFile } from '../utils/storage.js'
+import { deleteStoredFile, uploadPdfToCloudinary } from '../utils/storage.js'
 import { toPublicResume } from '../utils/cmsMapper.js'
 
 const router = Router()
@@ -53,7 +53,7 @@ router.post('/upload', resumeUpload.single('file'), async (req, res) => {
     const resume = await getOrCreateResume()
     await deleteStoredFile(resume.url || resume.filePath)
 
-    const storedUrl = await saveUploadedFile(req.file, 'resume')
+    const storedUrl = await uploadPdfToCloudinary(req.file, 'resume')
     resume.url = storedUrl
     resume.filePath = storedUrl
     resume.fileName = req.file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_') || 'resume.pdf'

@@ -2,8 +2,8 @@ import { Router } from 'express'
 import slugify from 'slugify'
 import { Project } from '../models/Project.js'
 import { requireAuth } from '../middleware/auth.js'
-import { saveUploadedFiles } from '../utils/storage.js'
-import { upload } from '../middleware/upload.js'
+import { projectImageUpload } from '../middleware/fileUpload.js'
+import { getCloudinarySecureUrls } from '../utils/storage.js'
 import { toAdminProject } from '../utils/projectMapper.js'
 
 const router = Router()
@@ -81,9 +81,10 @@ router.get('/:id', async (req, res) => {
   }
 })
 
-router.post('/upload', upload.array('images', 12), async (req, res) => {
+router.post('/upload', projectImageUpload.array('images', 12), async (req, res) => {
   try {
-    const urls = await saveUploadedFiles(req.files || [], 'projects')
+    const urls = getCloudinarySecureUrls(req.files || [])
+    if (!urls.length) return res.status(400).json({ message: 'No files uploaded' })
     res.json({ urls })
   } catch (err) {
     console.error(err)

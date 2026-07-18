@@ -1,3 +1,5 @@
+import { isCloudinaryConfigured } from './cloudinary.js'
+
 const REQUIRED = ['MONGO_URI', 'JWT_SECRET']
 
 export function validateEnv() {
@@ -27,9 +29,9 @@ export function validateEnv() {
     }
   }
 
-  if (process.env.NODE_ENV === 'production' && !process.env.BLOB_READ_WRITE_TOKEN && process.env.VERCEL) {
+  if (process.env.NODE_ENV === 'production' && !isCloudinaryConfigured()) {
     console.warn(
-      'BLOB_READ_WRITE_TOKEN is not set — file uploads will not persist on Vercel. Create a Blob store in the Vercel dashboard.',
+      'Cloudinary env vars are missing — image and resume uploads will fail until CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET are set.',
     )
   }
 }

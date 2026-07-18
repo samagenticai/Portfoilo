@@ -12,11 +12,7 @@
       "destination": "/api"
     },
     {
-      "source": "/uploads/(.*)",
-      "destination": "/api"
-    },
-    {
-      "source": "/((?!api/|uploads/|assets/|favicon\\.svg|og-image\\.svg|robots\\.txt|sitemap\\.xml|site\\.webmanifest).*)",
+      "source": "/((?!api/|assets/|favicon\\.svg|og-image\\.svg|robots\\.txt|sitemap\\.xml|site\\.webmanifest).*)",
       "destination": "/index.html"
     }
   ],

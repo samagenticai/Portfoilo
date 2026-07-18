@@ -12,7 +12,7 @@ frontend/.env
 frontend/dist/
 .vercel/
 
-# Uploads (local dev only — production uses Vercel Blob)
+# Uploads — Cloudinary only (no local filesystem)
 backend/uploads/
 
 # Logs & OS
