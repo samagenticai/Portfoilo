@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { Resume } from '../models/Resume.js'
 import { requireAuth } from '../middleware/auth.js'
 import { resumeUpload } from '../middleware/fileUpload.js'
-import { deleteStoredFile, uploadPdfToCloudinary } from '../utils/storage.js'
+import { deleteStoredFile, uploadPdfToCloudinary, validatePdfUploadFile } from '../utils/storage.js'
 import { toPublicResume } from '../utils/cmsMapper.js'
 
 const router = Router()
@@ -12,9 +12,10 @@ const MAX_BYTES = 5 * 1024 * 1024
 
 function validatePdfUpload(file) {
   if (!file) return 'PDF file is required.'
-  if (file.mimetype !== 'application/pdf') return 'Only PDF files are allowed.'
-  if (!String(file.originalname || '').toLowerCase().endsWith('.pdf')) {
-    return 'Only PDF files are allowed.'
+  try {
+    validatePdfUploadFile(file)
+  } catch (err) {
+    return err.message
   }
   if (file.size > MAX_BYTES) return 'Maximum file size is 5MB.'
   return null

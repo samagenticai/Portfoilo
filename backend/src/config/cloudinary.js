@@ -53,6 +53,24 @@ export function extractPublicIdFromUrl(url) {
   }
 }
 
+/** Signed URL that retrieves the exact raw PDF bytes (works even when public PDF delivery is restricted). */
+export function buildPrivateRawPdfUrl(publicId, options = {}) {
+  assertCloudinaryConfigured()
+  if (!publicId) throw new Error('Cloudinary public ID is required')
+
+  return cloudinary.utils.private_download_url(publicId, 'pdf', {
+    resource_type: 'raw',
+    type: 'upload',
+    ...options,
+  })
+}
+
+export function buildPrivateRawPdfUrlFromStoredUrl(storedUrl, options = {}) {
+  const publicId = extractPublicIdFromUrl(storedUrl)
+  if (!publicId) return storedUrl
+  return buildPrivateRawPdfUrl(publicId, options)
+}
+
 export async function deleteCloudinaryAsset(url, resourceType = 'image') {
   if (!url || !isCloudinaryConfigured()) return
 

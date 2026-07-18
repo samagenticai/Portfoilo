@@ -86,7 +86,7 @@ export default function ResumeManage() {
     }
   }
 
-  const previewUrl = hasResume ? resume.url : ''
+  const previewUrl = hasResume ? `${getResumeDownloadUrl()}?inline=1` : ''
   const downloadUrl = hasResume ? getResumeDownloadUrl() : ''
 
   const formatDate = (value) => {
