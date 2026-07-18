@@ -1,9 +1,9 @@
 import { createHash } from 'crypto'
 import cloudinary, {
   assertCloudinaryConfigured,
-  buildPrivateRawPdfUrl,
   cloudinaryFolder,
   deleteCloudinaryAsset,
+  fetchRawPdfBufferFromCloudinary,
 } from '../config/cloudinary.js'
 
 function sanitizeFilename(name) {
@@ -37,19 +37,10 @@ async function verifyUploadedPdfMatchesOriginal(uploadResult, originalBuffer) {
   const publicId = uploadResult?.public_id
   if (!publicId) throw new Error('Cloudinary upload did not return a public ID')
 
-  const verifyUrl = buildPrivateRawPdfUrl(publicId)
-  const response = await fetch(verifyUrl, { redirect: 'follow' })
-  if (!response.ok) {
-    throw new Error(`PDF upload verification failed: Cloudinary returned HTTP ${response.status}`)
-  }
+  const secureUrl = uploadResult?.secure_url
+  if (!secureUrl) throw new Error('Cloudinary upload did not return a secure URL')
 
-  const downloaded = Buffer.from(await response.arrayBuffer())
-  if (downloaded.length === 0) {
-    throw new Error('PDF upload verification failed: downloaded file is empty')
-  }
-  if (downloaded.subarray(0, 4).toString('ascii') !== '%PDF') {
-    throw new Error('PDF upload verification failed: stored file is not a valid PDF')
-  }
+  const downloaded = await fetchRawPdfBufferFromCloudinary(secureUrl)
   if (sha256(downloaded) !== sha256(originalBuffer)) {
     throw new Error('PDF upload verification failed: stored file does not match the original upload')
   }

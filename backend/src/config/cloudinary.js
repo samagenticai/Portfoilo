@@ -54,13 +54,12 @@ export function extractPublicIdFromUrl(url) {
 }
 
 /** Signed URL that retrieves the exact raw PDF bytes (works even when public PDF delivery is restricted). */
-export function buildPrivateRawPdfUrl(publicId, options = {}) {
+export function buildPrivateRawPdfUrl(publicId, format = null, options = {}) {
   assertCloudinaryConfigured()
   if (!publicId) throw new Error('Cloudinary public ID is required')
 
-  return cloudinary.utils.private_download_url(publicId, 'pdf', {
+  return cloudinary.utils.private_download_url(publicId, format, {
     resource_type: 'raw',
-    type: 'upload',
     ...options,
   })
 }
@@ -68,7 +67,47 @@ export function buildPrivateRawPdfUrl(publicId, options = {}) {
 export function buildPrivateRawPdfUrlFromStoredUrl(storedUrl, options = {}) {
   const publicId = extractPublicIdFromUrl(storedUrl)
   if (!publicId) return storedUrl
-  return buildPrivateRawPdfUrl(publicId, options)
+  return buildPrivateRawPdfUrl(publicId, 'pdf', options)
+}
+
+async function resolveRawPdfResource(storedUrl) {
+  assertCloudinaryConfigured()
+
+  const baseId = extractPublicIdFromUrl(storedUrl)
+  const candidates = []
+  if (baseId) candidates.push(baseId)
+  if (baseId && storedUrl.split('/').pop()?.endsWith('.pdf')) {
+    candidates.push(`${baseId}.pdf`)
+  }
+
+  for (const candidate of [...new Set(candidates)]) {
+    try {
+      const meta = await cloudinary.api.resource(candidate, { resource_type: 'raw' })
+      if (meta?.public_id) return meta
+    } catch {
+      // try next candidate
+    }
+  }
+
+  throw new Error('Cloudinary raw PDF resource not found')
+}
+
+export async function fetchRawPdfBufferFromCloudinary(storedUrl) {
+  const meta = await resolveRawPdfResource(storedUrl)
+  const format = meta.format || null
+  const downloadUrl = buildPrivateRawPdfUrl(meta.public_id, format)
+
+  const response = await fetch(downloadUrl, { redirect: 'follow' })
+  if (!response.ok) {
+    throw new Error(`Cloudinary download failed with HTTP ${response.status}`)
+  }
+
+  const buffer = Buffer.from(await response.arrayBuffer())
+  if (buffer.length < 4 || buffer.subarray(0, 4).toString('ascii') !== '%PDF') {
+    throw new Error('Cloudinary download did not return a valid PDF')
+  }
+
+  return buffer
 }
 
 export async function deleteCloudinaryAsset(url, resourceType = 'image') {
