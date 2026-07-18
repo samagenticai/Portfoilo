@@ -1,5 +1,6 @@
 import slugify from 'slugify'
 import { normalizeExternalUrl } from './normalizeUrl.js'
+import { normalizePublicAssetUrl } from './normalizeAssetUrl.js'
 
 const ORBIT_PRESETS = [
   { radius: 118, duration: 28, direction: 1, startAngle: 0 },
@@ -130,7 +131,7 @@ export function toPublicProfile(doc) {
 export function toPublicResume(doc) {
   if (!doc) return null
   const r = typeof doc.toObject === 'function' ? doc.toObject() : doc
-  const url = r.url || r.filePath || ''
+  const url = normalizePublicAssetUrl(r.url || r.filePath)
   if (!url) return null
   return {
     url,

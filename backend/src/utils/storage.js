@@ -29,14 +29,15 @@ export async function uploadPdfToCloudinary(file, folder = 'resume') {
   if (!buffer) throw new Error('Upload buffer missing')
 
   const folderPath = cloudinaryFolder(folder)
-  const publicId = `${folderPath}/${Date.now()}-${Math.round(Math.random() * 1e6)}-${sanitizeFilename(file.originalname)}`
+  const baseName = sanitizeFilename(file.originalname).replace(/\.pdf$/i, '') || 'resume'
 
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
+        folder: folderPath,
         resource_type: 'raw',
-        public_id: publicId,
-        format: 'pdf',
+        type: 'upload',
+        public_id: `${Date.now()}-${Math.round(Math.random() * 1e6)}-${baseName}`,
       },
       (error, result) => {
         if (error) reject(error)

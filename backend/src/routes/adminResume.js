@@ -55,7 +55,7 @@ router.post('/upload', resumeUpload.single('file'), async (req, res) => {
 
     const storedUrl = await uploadPdfToCloudinary(req.file, 'resume')
     resume.url = storedUrl
-    resume.filePath = storedUrl
+    resume.filePath = ''
     resume.fileName = req.file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_') || 'resume.pdf'
     resume.originalName = req.file.originalname
     resume.fileSize = req.file.size

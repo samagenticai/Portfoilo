@@ -64,9 +64,19 @@ export async function api(path, options = {}) {
   return data
 }
 
+/** Cloudinary and other absolute URLs pass through; legacy /uploads paths are ignored. */
 export function resolveAssetUrl(path) {
-  if (!path) return ''
-  // Cloudinary and other absolute URLs are stored as-is in MongoDB
-  if (/^https?:\/\//i.test(path)) return path
-  return buildUrl(path)
+  const value = String(path || '').trim()
+  if (!value) return ''
+  if (/^https?:\/\//i.test(value)) return value
+  return ''
+}
+
+/** Resume PDF must be a direct Cloudinary (or other HTTPS) raw URL — never a local /uploads path. */
+export function resolveResumeUrl(path) {
+  return resolveAssetUrl(path)
+}
+
+export function isPublicAssetUrl(path) {
+  return Boolean(resolveAssetUrl(path))
 }

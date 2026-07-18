@@ -21,7 +21,7 @@ const ResumeDownloadButton = forwardRef(function ResumeDownloadButton(
   ref,
 ) {
   const wrapRef = useRef(null)
-  const { hasResume, resumeUrl, resumeFileName } = usePortfolio()
+  const { hasResume, resumeUrl } = usePortfolio()
   useMagneticElement(wrapRef, { enabled: magnetic })
 
   const buttonClassName = cn(
@@ -54,7 +54,8 @@ const ResumeDownloadButton = forwardRef(function ResumeDownloadButton(
       ref={ref}
       as="a"
       href={resumeUrl}
-      download={resumeFileName}
+      target="_blank"
+      rel="noopener noreferrer"
       variant={variant}
       size={size}
       className={buttonClassName}

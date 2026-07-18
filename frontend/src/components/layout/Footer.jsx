@@ -5,7 +5,7 @@ import { Container, IconLink, SocialIcon } from '../ui'
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
-  const { profile, hasResume, resumeUrl, resumeFileName, mailtoHref } = usePortfolio()
+  const { profile, hasResume, resumeUrl, mailtoHref } = usePortfolio()
 
   const socialLinks = [
     profile?.github?.href ? { label: 'GitHub', href: profile.github.href, icon: 'github' } : null,
@@ -70,7 +70,6 @@ export default function Footer() {
                 <IconLink
                   href={hasResume ? resumeUrl : undefined}
                   label="Download Resume"
-                  download={hasResume ? resumeFileName : undefined}
                   disabled={!hasResume}
                   disabledTitle="Resume not uploaded yet"
                   className="footer-social"

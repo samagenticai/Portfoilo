@@ -26,13 +26,13 @@ export default function IconLink({
     )
   }
 
-  const isExternal = href.startsWith('http')
+  const isExternal = /^https?:\/\//i.test(href)
 
   return (
     <a
       href={href}
       aria-label={label}
-      download={download || undefined}
+      download={!isExternal && download ? download : undefined}
       target={isExternal ? '_blank' : undefined}
       rel={isExternal ? 'noopener noreferrer' : undefined}
       className={cn(
