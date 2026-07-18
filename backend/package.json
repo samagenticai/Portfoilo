@@ -10,6 +10,7 @@
     "seed": "node src/utils/runSeed.js",
     "verify:db": "node scripts/verify-atlas.mjs",
     "verify:password": "node scripts/verify-password-change.mjs",
+    "verify:esm": "node scripts/verify-esm-entry.mjs",
     "clear:demo": "node src/utils/clearDemoProjects.js"
   },
   "keywords": ["mern", "portfolio", "cms", "express", "mongodb"],

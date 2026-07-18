@@ -21,8 +21,8 @@
     }
   ],
   "functions": {
-    "api/index.js": {
-      "includeFiles": "backend/**",
+    "api/index.mjs": {
+      "includeFiles": "backend/{src,node_modules}/**",
       "memory": 1024,
       "maxDuration": 30
     }

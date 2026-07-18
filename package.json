@@ -1,6 +1,7 @@
 {
   "name": "ahmad-stack-portfolio-cms",
   "private": true,
+  "type": "module",
   "description": "Production-ready MERN portfolio with admin CMS — Ahmad Stack",
   "license": "Apache-2.0",
   "author": "Syed Ahmad Mohayyudin",
@@ -14,6 +15,7 @@
     "dev:frontend": "npm run dev --prefix frontend",
     "build": "npm run build --prefix frontend",
     "lint": "npm run lint --prefix frontend",
+    "verify:esm": "npm run verify:esm --prefix backend",
     "start:backend": "npm run start --prefix backend"
   }
 }
