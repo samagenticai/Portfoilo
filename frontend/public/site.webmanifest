@@ -1,0 +1,20 @@
+{
+  "name": "Ahmad Stack | MERN Stack Developer",
+  "short_name": "Ahmad Stack",
+  "description": "Professional MERN Stack Developer specializing in React.js, Node.js, Express.js and MongoDB.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#050816",
+  "theme_color": "#2563eb",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

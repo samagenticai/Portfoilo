@@ -1,0 +1,7 @@
+export { Hero } from './hero'
+export { WhyHireMe } from './why-hire-me'
+export { DeveloperJourney } from './developer-journey'
+export { Skills } from './skills'
+export { FeaturedProjects } from './projects'
+export { DevelopmentProcess } from './development-process'
+export { Contact } from './contact'

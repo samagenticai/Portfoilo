@@ -1,0 +1,19 @@
+{
+  "name": "ahmad-stack-portfolio-cms",
+  "private": true,
+  "description": "Production-ready MERN portfolio with admin CMS — Ahmad Stack",
+  "license": "Apache-2.0",
+  "author": "Syed Ahmad Mohayyudin",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/samagenticai/ahmad-stack-portfolio-cms.git"
+  },
+  "scripts": {
+    "dev": "npm run dev --prefix frontend",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "build": "npm run build --prefix frontend",
+    "lint": "npm run lint --prefix frontend",
+    "start:backend": "npm run start --prefix backend"
+  }
+}

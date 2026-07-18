@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Environment & secrets
+.env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env
+
+# Build output
+frontend/dist/
+.vercel/
+
+# Uploads (local dev only — production uses Vercel Blob)
+backend/uploads/
+
+# Logs & OS
+*.log
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Ahmad Stack MERN Stack Developer Portfolio">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#050816"/>
+      <stop offset="55%" stop-color="#0b1530"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="50%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#863bff"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="75%" cy="30%" r="45%">
+      <stop offset="0%" stop-color="#2563eb" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#2563eb" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <circle cx="980" cy="120" r="180" fill="#863bff" opacity="0.12"/>
+  <circle cx="180" cy="520" r="220" fill="#2563eb" opacity="0.1"/>
+  <rect x="72" y="72" width="1056" height="486" rx="28" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+  <text x="96" y="170" fill="#94a3b8" font-family="Segoe UI, system-ui, sans-serif" font-size="22" letter-spacing="6">PORTFOLIO</text>
+  <text x="96" y="270" fill="#f8fafc" font-family="Segoe UI, system-ui, sans-serif" font-size="72" font-weight="700">Ahmad Stack</text>
+  <text x="96" y="340" fill="url(#accent)" font-family="Segoe UI, system-ui, sans-serif" font-size="34" font-weight="600">MERN Stack Developer</text>
+  <text x="96" y="410" fill="#cbd5e1" font-family="Segoe UI, system-ui, sans-serif" font-size="28">React.js " Node.js " Express.js " MongoDB</text>
+  <text x="96" y="500" fill="#64748b" font-family="Segoe UI, system-ui, sans-serif" font-size="24">Full Stack Web Developer " Pakistan " github.com/samagenticai</text>
+  <rect x="96" y="530" width="220" height="6" rx="3" fill="url(#accent)"/>
+</svg>
